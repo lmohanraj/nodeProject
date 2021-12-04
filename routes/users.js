@@ -15,9 +15,16 @@ router.route("/signup").post( async (request,response) => {
     const userExist = await getUserByName(username);
 
     if(userExist){
-    response.send({message:"User already exists"});
+    response.status(400).send({message:"User already exists"});
     return
-}
+    }
+
+    if(!/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@!#%&]).{8,}$/g.test(password)
+    ){
+        response.send({message:"Password must be stronger"});
+    return
+    }
+
     const result = await createUser({username, password : hashedPassword})
     response.send(result);
 });
@@ -31,3 +38,12 @@ async function generatePassword(password) {
     const hashedPassword = await bcrypt.hash(password, salt);
     return { salt, hashedPassword };
 }
+
+
+// Task
+// Store the data in users collection
+// username & hashedPassword
+// 1. verify username already exists
+// 2. password is strong are not - "Provide a stronger password"
+// at least 8 characters
+// at least 1 small, capital letter & one special character
